@@ -1,13 +1,6 @@
-import os
-import sys
-
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
-
-sys.path.append(os.path.join(os.getcwd(), '..'))
-
-from courses.models import Course
 
 
 class Role(models.TextChoices):
@@ -49,7 +42,6 @@ class CustomUser(AbstractUser):
 class Balance(models.Model):
     """Модель баланса пользователя."""
 
-    objects = models.Manager()
     user = models.ForeignKey(
         CustomUser,
         verbose_name='Пользователь',
@@ -76,30 +68,3 @@ class Balance(models.Model):
 
     def __str__(self):
         return f'Пользователь: {self.user.username} | Баланс: {self.balance}'
-
-
-class Subscription(models.Model):
-    """Модель подписки пользователя на курс."""
-
-    # objects = models.Manager()
-    user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING)
-    is_valid = models.BooleanField(
-        verbose_name='Доступ',
-        default=False
-    )
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        ordering = ('-id',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'course'],
-                name='subscription_unique'
-            ),
-        ]
-
-    def __str__(self):
-        return (f'Пользователь: {self.user.username} '
-                f'| Курс: {self.course.title}')

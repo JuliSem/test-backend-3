@@ -1,20 +1,15 @@
-import os
-import sys
-
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 
-sys.path.append(os.path.join(os.getcwd(), '..'))
-
-from users.models import CustomUser
+User = get_user_model()
 
 
 class Course(models.Model):
     """Модель продукта - курса."""
 
-    # objects = models.Manager()
-    author = models.ForeignKey(  # вопрос?
-        CustomUser,
+    author = models.ForeignKey(
+        User,
         verbose_name='Автор',
         on_delete=models.CASCADE
     )
@@ -53,10 +48,35 @@ class Course(models.Model):
         return f'Курс: {self.title}'
 
 
+class Subscription(models.Model):
+    """Модель подписки пользователя на курс."""
+
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING)
+    is_valid = models.BooleanField(
+        verbose_name='Доступ',
+        default=False
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        ordering = ('-id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'course'],
+                name='subscription_unique'
+            ),
+        ]
+
+    def __str__(self):
+        return (f'Пользователь: {self.user.username} '
+                f'| Курс: {self.course.title}')
+
+
 class Lesson(models.Model):
     """Модель урока."""
 
-    # objects = models.Manager()
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE,
@@ -97,12 +117,6 @@ class Group(models.Model):
         verbose_name='Количество студентов',
         default=0
     )
-    # users = models.ManyToManyField(
-    #     CustomUser,
-    #     verbose_name='Участники',
-    #     related_name='groups'
-    # )
-    # создан дополнительный класс со связью ManyToMany
 
     class Meta:
         verbose_name = 'Группа'
@@ -122,7 +136,7 @@ class GroupStudents(models.Model):
         on_delete=models.CASCADE
     )
     user = models.ForeignKey(
-        CustomUser,
+        User,
         verbose_name='Студент',
         on_delete=models.CASCADE
     )
