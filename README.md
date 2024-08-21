@@ -80,6 +80,7 @@
 4. Перейдите в папку product и выполните миграции:
     ```
     cd product
+    python manage.py makemigrations
     python manage.py migrate
     ```
 5. Создайте суперпользователя:
