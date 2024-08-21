@@ -1,20 +1,31 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from users.models import Subscription
+from courses.models import Subscription
 
 
-def make_payment(request):
-    # TODO
-    pass
+def make_payment(user, course_id: int):
+    if Subscription.objects.filter(user=user, course__id=course_id).exists():
+        return True
+    return False
 
 
 class IsStudentOrIsAdmin(BasePermission):
     def has_permission(self, request, view):
-        # TODO
-        pass
+        if not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return request.method in SAFE_METHODS and make_payment(
+            request.user,
+            view.kwargs['course_id']
+        )
+
 
     def has_object_permission(self, request, view, obj):
-        # TODO
-        pass
+        if not request.user.is_authenticated:
+            return False
+        if request.user.is_superuser:
+            return True
+        return request.method in SAFE_METHODS
 
 
 class ReadOnlyOrIsAdmin(BasePermission):
