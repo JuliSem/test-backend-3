@@ -13,8 +13,8 @@ from api.v1.serializers.course_serializer import (CourseSerializer,
                                                   GroupSerializer,
                                                   LessonSerializer)
 from api.v1.serializers.user_serializer import SubscriptionSerializer
-from courses.models import Course, Lesson
-from users.models import Subscription, Balance
+from courses.models import Course, Lesson, Subscription
+from users.models import Balance
 
 
 class LessonViewSet(viewsets.ModelViewSet):
@@ -85,8 +85,6 @@ class CourseViewSet(viewsets.ModelViewSet):
     )
     def pay(self, request, pk):
         """Покупка доступа к курсу (подписка на курс)."""
-
-        # TODO
         with transaction.atomic():
             balance = get_object_or_404(Balance, user=request.user)
             course = get_object_or_404(Course, id=pk)
