@@ -13,10 +13,6 @@ class Course(models.Model):
         verbose_name='Автор',
         on_delete=models.CASCADE
     )
-    # author = models.CharField(
-    #     max_length=250,
-    #     verbose_name='Автор',
-    # )
     title = models.CharField(
         max_length=250,
         verbose_name='Название',
